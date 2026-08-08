@@ -695,9 +695,12 @@
       bar.innerHTML = cat.photos.map(num => {
         const video = hasVideo(num);
         const globalIdx = allPhotos.findIndex(p => p.num === num);
+        const clickAction = video 
+          ? `playVideo('${video}', '${num}')` 
+          : `goPhoto(${globalIdx})`;
         return `
           <div class="thumb ${allPhotos[currentIndex]?.num === num ? 'active' : ''}" 
-               onclick="goPhoto(${globalIdx})">
+               onclick="${clickAction}">
             <img src="https://raw.githubusercontent.com/clickflora99-lang/showroom/main/${num}.png" alt="${num}"
                  onerror="this.src='data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%22120%22 height=%2268%22%3E%3Crect fill=%22%23222%22 width=%22120%22 height=%2268%22/%3E%3C/svg%3E'">
             ${video ? '<div class="play">▶</div>' : ''}
@@ -730,8 +733,19 @@
     }
 
     function renderHotspots(photo) {
-      // تمام نقاط قرمز داخل عکس‌ها حذف شدند
-      document.getElementById('hotspots').innerHTML = '';
+      const box = document.getElementById('hotspots');
+      if (photo.video) {
+        // دکمه پخش ویدیو روی تصویر اصلی
+        box.innerHTML = `
+          <div class="hotspot" style="left:50%; top:50%;" onclick="playVideo('${photo.video}', '${photo.num}')">
+            <div class="dot video" style="width:56px;height:56px;font-size:20px;display:flex;align-items:center;justify-content:center;border-width:3px;">
+              ▶
+            </div>
+            <div class="label" style="opacity:1;transform:translateY(0);">پخش ویدیو</div>
+          </div>`;
+      } else {
+        box.innerHTML = '';
+      }
     }
 
     // ===================== NAVIGATION =====================
