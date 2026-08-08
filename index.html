@@ -535,7 +535,7 @@
     <aside class="sidebar" id="sidebar">
       <div class="logo-box">
         <div class="logo-mark">
-          <img src="media/logo.png" alt="Click Floor"
+          <img src="logo.png" alt="Click Floor"
                onerror="this.parentElement.innerHTML='<div style=\'width:48px;height:48px;background:linear-gradient(135deg,#e30613,#ff2a2a);border-radius:10px;display:flex;align-items:center;justify-content:center;color:#fff;font-weight:800;font-size:1.2rem;\'>CF</div>'">
         </div>
       </div>
@@ -556,7 +556,7 @@
 
     <!-- VIEWPORT -->
     <div class="viewport" id="viewport">
-      <img class="scene-img" id="sceneImg" src="media/000.png" alt="صحنه"
+      <img class="scene-img" id="sceneImg" src="000.png" alt="صحنه"
            onerror="this.src='data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%221600%22 height=%22900%22%3E%3Crect fill=%22%23111111%22 width=%221600%22 height=%22900%22/%3E%3Ctext fill=%22%23555%22 font-family=%22sans-serif%22 font-size=%2228%22 x=%2250%25%22 y=%2250%25%22 text-anchor=%22middle%22%3Eتصویر را در پوشه media قرار دهید%3C/text%3E%3C/svg%3E'">
 
       <div id="hotspots"></div>
@@ -606,11 +606,11 @@
     // ===================== CATEGORIES & PHOTOS =====================
     // ویدیوها فقط روی عکس‌هایی که فایل ویدیوی هم‌شماره دارن نمایش داده می‌شن
     const videos = {
-      "09": "media/09.mp4",
-      "009": "media/09.mp4",
-      "016": "media/016.mp4",
-      "022": "media/022.mp4",
-      "023": "media/023.mp4"
+      "09": "09.mp4",
+      "009": "09.mp4",
+      "016": "016.mp4",
+      "022": "022.mp4",
+      "023": "023.mp4"
     };
 
     function hasVideo(num) {
@@ -663,7 +663,7 @@
       cat.photos.forEach(p => {
         allPhotos.push({
           num: p,
-          file: `media/${p}.png`,
+          file: `${p}.png`,
           catId: cat.id,
           catTitle: cat.title,
           video: hasVideo(p)
@@ -698,7 +698,7 @@
         return `
           <div class="thumb ${allPhotos[currentIndex]?.num === num ? 'active' : ''}" 
                onclick="goPhoto(${globalIdx})">
-            <img src="media/${num}.png" alt="${num}"
+            <img src="${num}.png" alt="${num}"
                  onerror="this.src='data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%22120%22 height=%2268%22%3E%3Crect fill=%22%23222%22 width=%22120%22 height=%2268%22/%3E%3C/svg%3E'">
             ${video ? '<div class="play">▶</div>' : ''}
             <div class="thumb-name">${num}</div>
