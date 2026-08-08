@@ -1,0 +1,808 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>شوروم مجازی کارخانه کلیک فلور</title>
+  <style>
+    :root {
+      --bg: #0b0b0b;
+      --sidebar: #111;
+      --red: #e30613;
+      --red-dark: #b8000e;
+      --text: #fff;
+      --muted: #999;
+      --border: #2a2a2a;
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      font-family: 'Segoe UI', Tahoma, system-ui, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      height: 100vh;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* ===== TOP BAR ===== */
+    .top-bar {
+      height: 48px;
+      background: #0d0d0d;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 1.4rem;
+      flex-shrink: 0;
+      z-index: 60;
+    }
+
+    .top-title {
+      font-size: 1rem;
+      font-weight: 600;
+    }
+    .top-title span { color: var(--red); }
+
+    .top-actions {
+      display: flex;
+      gap: 0.5rem;
+    }
+
+    .icon-btn {
+      width: 34px;
+      height: 34px;
+      border-radius: 8px;
+      background: #1c1c1c;
+      border: 1px solid #333;
+      color: #ccc;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      font-size: 0.95rem;
+      transition: 0.2s;
+    }
+    .icon-btn:hover {
+      background: var(--red);
+      color: #fff;
+      border-color: var(--red);
+    }
+
+    /* ===== MAIN LAYOUT ===== */
+    .layout {
+      flex: 1;
+      display: flex;
+      overflow: hidden;
+    }
+
+    /* ===== SIDEBAR ===== */
+    .sidebar {
+      width: 270px;
+      background: var(--sidebar);
+      border-left: 1px solid var(--border);
+      display: flex;
+      flex-direction: column;
+      flex-shrink: 0;
+      z-index: 50;
+    }
+
+    .logo-box {
+      padding: 1.2rem 1.1rem 1rem;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      gap: 0.85rem;
+    }
+
+    .logo-mark {
+      width: 150px;
+      height: 48px;
+      border-radius: 8px;
+      overflow: hidden;
+      flex-shrink: 0;
+      background: transparent;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .logo-mark img {
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+    }
+
+    .logo-text {
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+    }
+    .logo-text h1 {
+      font-size: 1.05rem;
+      font-weight: 700;
+      line-height: 1.2;
+      letter-spacing: 0.3px;
+      color: #fff;
+    }
+    .logo-text p {
+      font-size: 0.68rem;
+      color: var(--muted);
+      letter-spacing: 0.8px;
+      margin-top: 1px;
+    }
+
+    .sidebar-label {
+      padding: 1rem 1.2rem 0.5rem;
+      font-size: 0.82rem;
+      color: var(--muted);
+      font-weight: 500;
+    }
+
+    .menu {
+      flex: 1;
+      overflow-y: auto;
+      padding: 0 0.7rem 0.8rem;
+    }
+
+    .menu-item {
+      display: flex;
+      align-items: center;
+      gap: 0.7rem;
+      padding: 0.72rem 0.95rem;
+      border-radius: 8px;
+      cursor: pointer;
+      color: #ccc;
+      font-size: 0.9rem;
+      transition: 0.2s;
+      margin-bottom: 2px;
+      border: 1px solid transparent;
+    }
+    .menu-item:hover {
+      background: #1c1c1c;
+      color: #fff;
+    }
+    .menu-item.active {
+      background: var(--red);
+      color: #fff;
+      font-weight: 600;
+      box-shadow: 0 4px 14px rgba(227,6,19,0.35);
+    }
+    .menu-item .ico {
+      width: 18px;
+      text-align: center;
+      font-size: 0.95rem;
+    }
+
+    .guide {
+      margin: 0.6rem 0.8rem 1rem;
+      padding: 0.9rem 1rem;
+      background: #161616;
+      border: 1px solid #2a2a2a;
+      border-radius: 10px;
+      font-size: 0.78rem;
+      color: #999;
+      line-height: 1.55;
+    }
+    .guide strong { color: var(--red); }
+
+    /* ===== VIEWPORT ===== */
+    .viewport {
+      flex: 1;
+      position: relative;
+      background: #000;
+      overflow: hidden;
+    }
+
+    .scene-img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      transition: opacity 0.35s ease;
+    }
+
+    /* Hotspots */
+    .hotspot {
+      position: absolute;
+      transform: translate(-50%, -50%);
+      z-index: 15;
+      cursor: pointer;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 5px;
+    }
+
+    .dot {
+      width: 18px;
+      height: 18px;
+      background: var(--red);
+      border-radius: 50%;
+      border: 2.5px solid #fff;
+      box-shadow: 0 0 0 4px rgba(227,6,19,0.4), 0 3px 10px rgba(0,0,0,0.45);
+      animation: pulse 2s infinite;
+      position: relative;
+    }
+    .dot.video::after {
+      content: '▶';
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      font-size: 8px;
+      color: #fff;
+    }
+
+    @keyframes pulse {
+      0% { box-shadow: 0 0 0 0 rgba(227,6,19,0.55), 0 3px 10px rgba(0,0,0,0.45); }
+      70% { box-shadow: 0 0 0 11px rgba(227,6,19,0), 0 3px 10px rgba(0,0,0,0.45); }
+      100% { box-shadow: 0 0 0 0 rgba(227,6,19,0), 0 3px 10px rgba(0,0,0,0.45); }
+    }
+
+    .label {
+      background: rgba(15,15,15,0.88);
+      color: #fff;
+      padding: 4px 11px;
+      border-radius: 16px;
+      font-size: 0.75rem;
+      white-space: nowrap;
+      border: 1px solid #444;
+      opacity: 0;
+      transform: translateY(5px);
+      transition: 0.22s;
+      pointer-events: none;
+    }
+    .hotspot:hover .label { opacity: 1; transform: translateY(0); }
+
+    /* Center nav - Premium Luxury */
+    .nav-bar {
+      position: absolute;
+      bottom: 100px;
+      left: 50%;
+      transform: translateX(-50%);
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      background: rgba(8, 8, 8, 0.75);
+      backdrop-filter: blur(28px) saturate(1.5);
+      -webkit-backdrop-filter: blur(28px) saturate(1.5);
+      padding: 7px 10px;
+      border-radius: 100px;
+      border: 1px solid rgba(255,255,255,0.08);
+      box-shadow: 
+        0 16px 50px rgba(0,0,0,0.6),
+        0 0 0 1px rgba(255,255,255,0.03),
+        inset 0 1px 0 rgba(255,255,255,0.06);
+      z-index: 25;
+    }
+
+    .nav-btn {
+      height: 48px;
+      min-width: 48px;
+      padding: 0 22px;
+      border-radius: 50px;
+      background: transparent;
+      border: 1px solid transparent;
+      color: rgba(255,255,255,0.88);
+      font-size: 0.92rem;
+      font-weight: 500;
+      letter-spacing: 0.5px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      transition: all 0.4s cubic-bezier(0.22, 1, 0.36, 1);
+      white-space: nowrap;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .nav-btn span {
+      position: relative;
+      z-index: 1;
+    }
+
+    /* Previous / Next - Glass luxury pills */
+    .nav-btn.prev-next {
+      background: linear-gradient(165deg, rgba(255,255,255,0.11) 0%, rgba(255,255,255,0.03) 100%);
+      border: 1px solid rgba(255,255,255,0.13);
+      box-shadow: 
+        0 3px 12px rgba(0,0,0,0.3),
+        inset 0 1px 0 rgba(255,255,255,0.1);
+    }
+    .nav-btn.prev-next:hover {
+      background: linear-gradient(165deg, rgba(255,255,255,0.2) 0%, rgba(255,255,255,0.06) 100%);
+      border-color: rgba(255,255,255,0.28);
+      color: #fff;
+      transform: translateY(-3px);
+      box-shadow: 
+        0 10px 28px rgba(0,0,0,0.4),
+        inset 0 1px 0 rgba(255,255,255,0.15);
+    }
+    .nav-btn.prev-next:active {
+      transform: translateY(-1px);
+    }
+
+    /* Center red premium button */
+    .nav-btn.main {
+      background: linear-gradient(150deg, #ff2a38 0%, #e30613 45%, #b8000e 100%);
+      border: 1px solid rgba(255,140,140,0.4);
+      width: 54px;
+      height: 54px;
+      min-width: 54px;
+      padding: 0;
+      border-radius: 50%;
+      font-size: 1.3rem;
+      color: #fff;
+      box-shadow: 
+        0 8px 28px rgba(227,6,19,0.55),
+        0 0 0 5px rgba(227,6,19,0.18),
+        inset 0 1px 0 rgba(255,255,255,0.28);
+    }
+    .nav-btn.main:hover {
+      background: linear-gradient(150deg, #ff4450 0%, #ff1a28 45%, #d40012 100%);
+      transform: scale(1.12) translateY(-2px);
+      box-shadow: 
+        0 14px 36px rgba(227,6,19,0.65),
+        0 0 0 6px rgba(227,6,19,0.22),
+        inset 0 1px 0 rgba(255,255,255,0.35);
+    }
+
+    .nav-btn.icon-only {
+      width: 48px;
+      min-width: 48px;
+      padding: 0;
+      border-radius: 50%;
+      font-size: 1.2rem;
+      background: rgba(255,255,255,0.05);
+      border: 1px solid rgba(255,255,255,0.09);
+      box-shadow: inset 0 1px 0 rgba(255,255,255,0.06);
+    }
+    .nav-btn.icon-only:hover {
+      background: rgba(255,255,255,0.13);
+      border-color: rgba(255,255,255,0.22);
+      color: #fff;
+      transform: translateY(-2px);
+      box-shadow: 0 8px 20px rgba(0,0,0,0.3);
+    }
+
+    /* ===== THUMBS ===== */
+    .thumbs {
+      height: 90px;
+      background: #0d0d0d;
+      border-top: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+      padding: 0 1rem;
+      overflow-x: auto;
+      flex-shrink: 0;
+      scrollbar-width: thin;
+      scrollbar-color: #333 transparent;
+    }
+
+    .thumb {
+      flex-shrink: 0;
+      width: 120px;
+      height: 68px;
+      border-radius: 7px;
+      overflow: hidden;
+      cursor: pointer;
+      border: 2px solid transparent;
+      position: relative;
+      background: #1a1a1a;
+      transition: 0.2s;
+    }
+    .thumb img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+    .thumb.active {
+      border-color: var(--red);
+      box-shadow: 0 0 0 2px rgba(227,6,19,0.3);
+    }
+    .thumb:hover { border-color: #666; }
+
+    .thumb .play {
+      position: absolute;
+      inset: 0;
+      background: rgba(0,0,0,0.45);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #fff;
+      font-size: 1.3rem;
+    }
+
+    .thumb-name {
+      position: absolute;
+      bottom: 0;
+      right: 0;
+      left: 0;
+      background: linear-gradient(transparent, rgba(0,0,0,0.8));
+      padding: 3px 5px;
+      font-size: 0.65rem;
+      text-align: center;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    /* ===== FOOTER ===== */
+    .footer {
+      height: 44px;
+      background: #0a0a0a;
+      border-top: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 1.4rem;
+      font-size: 0.78rem;
+      color: #888;
+      flex-shrink: 0;
+    }
+
+    .footer .left {
+      display: flex;
+      align-items: center;
+      gap: 1.4rem;
+    }
+
+    .footer a {
+      color: #aaa;
+      text-decoration: none;
+      display: flex;
+      align-items: center;
+      gap: 0.35rem;
+    }
+    .footer a:hover { color: var(--red); }
+
+    /* ===== MODAL ===== */
+    .modal {
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.92);
+      z-index: 200;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 1.5rem;
+    }
+    .modal.active { display: flex; }
+
+    .modal-inner {
+      position: relative;
+      max-width: 920px;
+      width: 100%;
+    }
+    .modal-inner video {
+      width: 100%;
+      border-radius: 10px;
+      box-shadow: 0 20px 50px rgba(0,0,0,0.55);
+    }
+    .modal-close {
+      position: absolute;
+      top: -42px;
+      left: 0;
+      background: none;
+      border: none;
+      color: #fff;
+      font-size: 1.9rem;
+      cursor: pointer;
+    }
+    .modal-cap {
+      text-align: center;
+      margin-top: 0.8rem;
+      color: #ccc;
+      font-size: 0.9rem;
+    }
+
+    /* ===== RESPONSIVE ===== */
+    @media (max-width: 860px) {
+      .sidebar {
+        position: absolute;
+        right: 0;
+        top: 48px;
+        bottom: 134px;
+        transform: translateX(100%);
+        transition: transform 0.3s;
+        z-index: 70;
+      }
+      .sidebar.open { transform: translateX(0); }
+      .menu-toggle { display: flex !important; }
+    }
+    .menu-toggle { display: none; }
+  </style>
+</head>
+<body>
+
+  <!-- TOP -->
+  <div class="top-bar">
+    <div class="top-title"><span>شوروم مجازی</span> کارخانه کلیک فلور</div>
+    <div class="top-actions">
+      <button class="icon-btn menu-toggle" id="menuToggle">☰</button>
+      <button class="icon-btn" onclick="toggleFs()" title="تمام‌صفحه">⛶</button>
+      <button class="icon-btn" title="صدا">♪</button>
+      <button class="icon-btn" title="بی‌صدا">🔇</button>
+    </div>
+  </div>
+
+  <div class="layout">
+    <!-- SIDEBAR -->
+    <aside class="sidebar" id="sidebar">
+      <div class="logo-box">
+        <div class="logo-mark">
+          <img src="media/logo.png" alt="Click Floor"
+               onerror="this.parentElement.innerHTML='<div style=\'width:48px;height:48px;background:linear-gradient(135deg,#e30613,#ff2a2a);border-radius:10px;display:flex;align-items:center;justify-content:center;color:#fff;font-weight:800;font-size:1.2rem;\'>CF</div>'">
+        </div>
+      </div>
+
+      <div class="sidebar-label">مسیر بازدید</div>
+
+      <nav class="menu" id="menu">
+        <!-- filled by JS -->
+      </nav>
+
+      <div class="guide">
+        <strong>راهنما</strong><br>
+        روی نقاط قرمز کلیک کنید تا اطلاعات بیشتر و ویدیوهای مربوط به هر بخش را مشاهده کنید.
+        <br><br>
+        برخی نقاط دارای ویدیو هستند.
+      </div>
+    </aside>
+
+    <!-- VIEWPORT -->
+    <div class="viewport" id="viewport">
+      <img class="scene-img" id="sceneImg" src="media/000.png" alt="صحنه"
+           onerror="this.src='data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%221600%22 height=%22900%22%3E%3Crect fill=%22%23111111%22 width=%221600%22 height=%22900%22/%3E%3Ctext fill=%22%23555%22 font-family=%22sans-serif%22 font-size=%2228%22 x=%2250%25%22 y=%2250%25%22 text-anchor=%22middle%22%3Eتصویر را در پوشه media قرار دهید%3C/text%3E%3C/svg%3E'">
+
+      <div id="hotspots"></div>
+
+      <div class="nav-bar">
+        <button class="nav-btn icon-only" onclick="goHome()" title="خانه">⌂</button>
+        <button class="nav-btn prev-next" onclick="prev()" title="قبلی">
+          <span>‹</span>
+          <span>قبلی</span>
+        </button>
+        <button class="nav-btn main" onclick="toggleThumbs()" title="نمای کلی">⊞</button>
+        <button class="nav-btn prev-next" onclick="next()" title="بعدی">
+          <span>بعدی</span>
+          <span>›</span>
+        </button>
+        <button class="nav-btn icon-only" onclick="goHome()" title="خانه">⌂</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- THUMBS -->
+  <div class="thumbs" id="thumbs"></div>
+
+  <!-- FOOTER -->
+  <div class="footer">
+    <div class="left">
+      <span>⚙ تولیدکننده پارکت لمینت با کیفیت عالی</span>
+      <span>🛡 مواد اولیه درجه یک</span>
+    </div>
+    <div style="display:flex;align-items:center;gap:1.6rem;">
+      <strong style="color:#fff;font-size:0.92rem;">CLICK FLOOR</strong>
+      <a href="tel:09121234567">📞 0912 123 4567</a>
+      <a href="https://www.clickflor.ir" target="_blank">🌐 www.clickflor.ir</a>
+    </div>
+  </div>
+
+  <!-- MODAL -->
+  <div class="modal" id="modal">
+    <div class="modal-inner">
+      <button class="modal-close" onclick="closeModal()">×</button>
+      <div id="modalBody"></div>
+      <div class="modal-cap" id="modalCap"></div>
+    </div>
+  </div>
+
+  <script>
+    // ===================== CATEGORIES & PHOTOS =====================
+    // ویدیوها فقط روی عکس‌هایی که فایل ویدیوی هم‌شماره دارن نمایش داده می‌شن
+    const videos = {
+      "09": "media/09.mp4",
+      "009": "media/09.mp4",
+      "016": "media/016.mp4",
+      "022": "media/022.mp4",
+      "023": "media/023.mp4"
+    };
+
+    function hasVideo(num) {
+      // چک با و بدون صفرهای اول
+      if (videos[num]) return videos[num];
+      const stripped = String(num).replace(/^0+/, '') || '0';
+      if (videos[stripped]) return videos[stripped];
+      if (videos['0' + stripped]) return videos['0' + stripped];
+      if (videos['00' + stripped]) return videos['00' + stripped];
+      return null;
+    }
+
+    // شماره عکس‌ها از 000 شروع می‌شود
+    const categories = [
+      {
+        id: "yard",
+        title: "ورودی و محوطه",
+        icon: "🏠",
+        photos: ["000","001","002","003","004","005","006"]
+      },
+      {
+        id: "hall",
+        title: "سالن تولید",
+        icon: "🏭",
+        photos: ["007","008","009","010","011","012","013","014","015","016","017","018","019"]
+      },
+      {
+        id: "line",
+        title: "خط تولید",
+        icon: "⚙️",
+        photos: ["020","021"]
+      },
+      {
+        id: "storage",
+        title: "انبار",
+        icon: "📦",
+        photos: ["006"]
+      },
+      {
+        id: "pack",
+        title: "بسته‌بندی",
+        icon: "📦",
+        photos: ["022"]
+      }
+    ];
+
+    // لیست تخت همه عکس‌ها برای ناوبری قبلی/بعدی
+    let allPhotos = [];
+    categories.forEach(cat => {
+      cat.photos.forEach(p => {
+        allPhotos.push({
+          num: p,
+          file: `media/${p}.png`,
+          catId: cat.id,
+          catTitle: cat.title,
+          video: hasVideo(p)
+        });
+      });
+    });
+
+    let currentIndex = 0;
+    let currentCatId = categories[0].id;
+
+    // ===================== RENDER =====================
+    function renderMenu() {
+      const menu = document.getElementById('menu');
+      menu.innerHTML = categories.map(cat => `
+        <div class="menu-item ${cat.id === currentCatId ? 'active' : ''}" 
+             data-id="${cat.id}" onclick="goCategory('${cat.id}')">
+          <span class="ico">${cat.icon}</span>
+          <span>${cat.title}</span>
+        </div>
+      `).join('');
+    }
+
+    function renderThumbs() {
+      const bar = document.getElementById('thumbs');
+      // فقط عکس‌های دسته فعلی
+      const cat = categories.find(c => c.id === currentCatId);
+      if (!cat) return;
+
+      bar.innerHTML = cat.photos.map(num => {
+        const video = hasVideo(num);
+        const globalIdx = allPhotos.findIndex(p => p.num === num);
+        return `
+          <div class="thumb ${allPhotos[currentIndex]?.num === num ? 'active' : ''}" 
+               onclick="goPhoto(${globalIdx})">
+            <img src="media/${num}.png" alt="${num}"
+                 onerror="this.src='data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%22120%22 height=%2268%22%3E%3Crect fill=%22%23222%22 width=%22120%22 height=%2268%22/%3E%3C/svg%3E'">
+            ${video ? '<div class="play">▶</div>' : ''}
+            <div class="thumb-name">${num}</div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    function loadPhoto(index) {
+      if (index < 0 || index >= allPhotos.length) return;
+      currentIndex = index;
+      const photo = allPhotos[index];
+      currentCatId = photo.catId;
+
+      const img = document.getElementById('sceneImg');
+      img.style.opacity = 0;
+      setTimeout(() => {
+        img.src = photo.file;
+        img.style.opacity = 1;
+      }, 200);
+
+      // بروزرسانی منو
+      document.querySelectorAll('.menu-item').forEach(el => {
+        el.classList.toggle('active', el.dataset.id === currentCatId);
+      });
+
+      renderThumbs();
+      renderHotspots(photo);
+    }
+
+    function renderHotspots(photo) {
+      // تمام نقاط قرمز داخل عکس‌ها حذف شدند
+      document.getElementById('hotspots').innerHTML = '';
+    }
+
+    // ===================== NAVIGATION =====================
+    function goCategory(catId) {
+      const first = allPhotos.findIndex(p => p.catId === catId);
+      if (first !== -1) loadPhoto(first);
+    }
+
+    function goPhoto(index) {
+      loadPhoto(index);
+    }
+
+    function next() {
+      loadPhoto((currentIndex + 1) % allPhotos.length);
+    }
+
+    function prev() {
+      loadPhoto((currentIndex - 1 + allPhotos.length) % allPhotos.length);
+    }
+
+    function goHome() {
+      loadPhoto(0);
+    }
+
+    function toggleThumbs() {
+      // فعلاً فقط رفرش
+      renderThumbs();
+    }
+
+    // ===================== VIDEO =====================
+    function playVideo(src, title) {
+      document.getElementById('modalBody').innerHTML = `
+        <video controls autoplay playsinline style="width:100%;border-radius:10px;">
+          <source src="${src}" type="video/mp4">
+        </video>`;
+      document.getElementById('modalCap').textContent = 'ویدیو ' + title;
+      document.getElementById('modal').classList.add('active');
+    }
+
+    function closeModal() {
+      document.getElementById('modal').classList.remove('active');
+      document.getElementById('modalBody').innerHTML = '';
+    }
+
+    function toggleFs() {
+      if (!document.fullscreenElement) {
+        document.documentElement.requestFullscreen().catch(()=>{});
+      } else {
+        document.exitFullscreen();
+      }
+    }
+
+    // ===================== EVENTS =====================
+    document.getElementById('menuToggle')?.addEventListener('click', () => {
+      document.getElementById('sidebar').classList.toggle('open');
+    });
+
+    document.addEventListener('keydown', e => {
+      if (e.key === 'ArrowLeft') next();
+      if (e.key === 'ArrowRight') prev();
+      if (e.key === 'Escape') closeModal();
+      if (e.key === 'Home') goHome();
+    });
+
+    document.getElementById('modal').addEventListener('click', e => {
+      if (e.target.id === 'modal') closeModal();
+    });
+
+    // Init
+    renderMenu();
+    loadPhoto(0);
+  </script>
+</body>
+</html>
