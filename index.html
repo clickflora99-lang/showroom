@@ -175,6 +175,22 @@
       font-size: 0.95rem;
     }
 
+    /* ===== ALL PHOTOS MENU ITEM ===== */
+    .menu-item.all-photos {
+      border-color: #333;
+      background: #181818;
+      margin-top: 0.35rem;
+      margin-bottom: 0.55rem;
+    }
+    .menu-item.all-photos:hover {
+      background: #242424;
+      border-color: #555;
+    }
+    .menu-item.all-photos.active {
+      background: var(--red);
+      border-color: var(--red);
+    }
+
     .guide {
       margin: 0.6rem 0.8rem 1rem;
       padding: 0.9rem 1rem;
@@ -647,6 +663,8 @@
         id: "storage",
         title: "انبار",
         icon: "📦",
+        // برای اضافه کردن عکس‌های بیشتر به انبار، شماره‌ها را اینجا اضافه کن:
+        // مثال: photos: ["006","007","008"]
         photos: ["006"]
       },
       {
@@ -677,22 +695,47 @@
     // ===================== RENDER =====================
     function renderMenu() {
       const menu = document.getElementById('menu');
-      menu.innerHTML = categories.map(cat => `
+
+      // گزینه «همه تصاویر» در ابتدای منو
+      const allItem = `
+        <div class="menu-item all-photos ${currentCatId === 'all' ? 'active' : ''}"
+             data-id="all" onclick="goCategory('all')">
+          <span class="ico">🖼️</span>
+          <span>همه تصاویر</span>
+        </div>
+      `;
+
+      const categoryItems = categories.map(cat => `
         <div class="menu-item ${cat.id === currentCatId ? 'active' : ''}" 
              data-id="${cat.id}" onclick="goCategory('${cat.id}')">
           <span class="ico">${cat.icon}</span>
           <span>${cat.title}</span>
         </div>
       `).join('');
+
+      menu.innerHTML = allItem + categoryItems;
     }
 
     function renderThumbs() {
       const bar = document.getElementById('thumbs');
-      // فقط عکس‌های دسته فعلی
-      const cat = categories.find(c => c.id === currentCatId);
-      if (!cat) return;
 
-      bar.innerHTML = cat.photos.map(num => {
+      // اگر «همه تصاویر» انتخاب شده باشد، همه عکس‌ها را پشت سر هم نشان بده
+      let photoList;
+      if (currentCatId === 'all') {
+        const seen = new Set();
+        photoList = allPhotos.filter(p => {
+          if (seen.has(p.num)) return false;
+          seen.add(p.num);
+          return true;
+        });
+      } else {
+        const cat = categories.find(c => c.id === currentCatId);
+        if (!cat) return;
+        photoList = cat.photos.map(num => allPhotos.find(p => p.num === num)).filter(Boolean);
+      }
+
+      bar.innerHTML = photoList.map(photo => {
+        const num = photo.num;
         const video = hasVideo(num);
         const globalIdx = allPhotos.findIndex(p => p.num === num);
         return `
@@ -711,7 +754,11 @@
       if (index < 0 || index >= allPhotos.length) return;
       currentIndex = index;
       const photo = allPhotos[index];
-      currentCatId = photo.catId;
+
+      // اگر در حالت «همه تصاویر» هستیم، با رفتن بین عکس‌ها از این حالت خارج نشو
+      if (currentCatId !== 'all') {
+        currentCatId = photo.catId;
+      }
 
       const img = document.getElementById('sceneImg');
       img.style.opacity = 0;
@@ -747,6 +794,19 @@
 
     // ===================== NAVIGATION =====================
     function goCategory(catId) {
+      // «همه تصاویر» = نمایش همه عکس‌ها در همان نوار پایین
+      if (catId === 'all') {
+        const first = allPhotos.findIndex(p => p.num === '000');
+        currentCatId = 'all';
+        if (first !== -1) {
+          loadPhoto(first);
+        } else {
+          renderMenu();
+          renderThumbs();
+        }
+        return;
+      }
+
       const first = allPhotos.findIndex(p => p.catId === catId);
       if (first !== -1) loadPhoto(first);
     }
